@@ -1,7 +1,7 @@
 // Part 1
 let counter = 0;
 try {
-  increment();
+  //increment();
 } catch (e) {
   console.error(e);
 }
@@ -14,13 +14,16 @@ function increment() {
 // Part 2
 function flattenArray(array) {
   const newArray = [];
-  for (let i = 0; i < array.length; i++) {
-    if (Array.isArray(array[i])) {
-      return () => newArray.push(flattenArray(array[i]));
-    } else {
-      newArray.push(array[i]);
+  function _flatten(arr) {
+    for (let i = 0; i < arr.length; i++) {
+      if (Array.isArray(arr[i])) {
+        return () => _flatten(arr[i]);
+      } else {
+        newArray.push(arr[i]);
+      }
     }
   }
+  _flatten(array);
   return newArray;
 }
 const trampoline = (f, ...args) => {
