@@ -25,17 +25,20 @@ function increment() {
 //   return newArray;
 // }
 
-// I came up with this function but it didn't work
-function flattenArray(array) {
-  const subArray = [];
-  for (let i = 0; i < array.length; i++) {
-    if (Array.isArray(array[i])) {
-      return () => flattenArray(array[i]);
-    } else {
-      return () => subArray.push(array[i]);
-    }
+// this function works for the super nested array but not the shallower array
+function flattenArray(array, newArray = [], index = 0) {
+  if (index >= array.length) {
+    return newArray;
   }
-  return subArray;
+  if (Array.isArray(array[index])) {
+    return () => {
+      flattenArray(array[index], newArray);
+      return () => flattenArray(array, newArray, index + 1);
+    };
+  } else {
+    newArray.push(array[index]);
+    return () => flattenArray(array, newArray, index + 1);
+  }
 }
 const trampoline = (f, ...args) => {
   let result = f(...args);
@@ -45,24 +48,24 @@ const trampoline = (f, ...args) => {
   return result;
 };
 // creating an array that will crush flattenArray. I asked ChatGPT to make this for me.
-// const deepArray = [];
-// let current = deepArray;
-// for (let i = 0; i < 100000; i++) {
-//   current.push([]);
-//   current = current[0];
-// }
+const deepArray = [];
+let current = deepArray;
+for (let i = 0; i < 100000; i++) {
+  current.push([]);
+  current = current[0];
+}
+deepArray.push(1);
 
-// const flatArray = trampoline(flattenArray, deepArray);
-// console.log(flatArray);
+const flatArray = trampoline(flattenArray(deepArray));
+console.log(flatArray);
 const notSoDeepArray = [1, 2, [3, 4], 5, [6, [7, 8, [9, 10]]]];
-const flatArray2 = trampoline(flattenArray, notSoDeepArray);
+const flatArray2 = trampoline(flattenArray(notSoDeepArray));
 console.log(flatArray2);
 
 // Part 3
 // get all prime numbers between 1 and n
 function getPrimes(n) {
   const element = document.getElementById("element");
-  const primes = [];
   for (let i = 2; i <= n; i++) {
     setTimeout(() => {
       let isPrime = true;
